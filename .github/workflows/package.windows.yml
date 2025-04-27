@@ -1,0 +1,117 @@
+name: CI/CD Pipeline Package Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      processor:
+        description: 'Choose the processor type (gpu, cpu, zluda)'
+        required: false
+        default: 'gpu'
+      output-format:
+        description: 'Choose the output format (msi or zip)'
+        required: true
+        default: 'msi'
+
+env:
+  FORCE_COLOR: "1"
+  SSH_HOST: ${{ secrets.SSH_HOST }}
+  SSH_PORT: ${{ secrets.SSH_PORT || 22 }}
+  SSH_USER: ${{ secrets.SSH_USER }}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  PROCESSOR: ${{ github.event.inputs.processor || 'gpu' }}  # Default to 'gpu' if not provided
+  OUTPUT_FORMAT: ${{ github.event.inputs.output-format || 'msi' }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      matrix:
+        target: [windows]
+        include:
+          - target: "windows"
+            output-format: "msi"
+            pre-command: |
+              choco install visualstudio2022buildtools --confirm
+              choco install visualstudio2022-workload-vctools --confirm
+              choco install wixtoolset --version 4.0.5 --confirm
+            runs-on: "windows-latest"
+            python-version: "3.10"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Set WIX_HOME and update PATH
+        shell: pwsh
+        run: |
+           echo "WIX_HOME=C:\Program Files\WiX Toolset v4.0" >> $env:GITHUB_ENV
+           echo "PATH=C:\Program Files\WiX Toolset v4.0\bin;$env:PATH" >> $env:GITHUB_ENV
+
+      - name: Select processor configuration
+        working-directory: portable
+        shell: pwsh
+        run: |
+          Write-Host "Using processor: $env:PROCESSOR"
+          if (-not (Test-Path "pyproject_$env:PROCESSOR.toml")) {
+            throw "File pyproject_$env:PROCESSOR.toml not found!"
+          }
+          Copy-Item "pyproject_$env:PROCESSOR.toml" -Destination "pyproject.toml"
+
+      - name: Set up Python environment
+        shell: pwsh
+        run: |
+          python -m venv venv --copies
+
+          .\venv\Scripts\Activate.ps1
+          
+          python -m pip install -U --force-reinstall pip
+          python -m pip install -U setuptools wheel
+          python -m pip install briefcase insightface
+
+          python --version
+          python -m pip --version
+
+      - name: Build application
+        shell: pwsh
+        run: |
+          .\venv\Scripts\Activate.ps1
+
+          cd portable
+          python -m briefcase build $env:TARGET
+
+          Get-ChildItem -Path .\build -Recurse | Select-Object FullName | Write-Host
+
+      - name: Package application
+        shell: pwsh
+        run: |
+          .\venv\Scripts\Activate.ps1
+          cd portable
+
+          python -m briefcase package $env:TARGET -p $env:OUTPUT_FORMAT --adhoc-sign --log
+
+          $distFiles = Get-ChildItem -Path .\dist
+          Write-Host "Created package files:"
+          $distFiles | ForEach-Object { Write-Host $_.FullName }
+
+      - name: Upload Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Log-Failure-${{ matrix.target }}
+          path: logs/*
+
+      - name: Deploy via scp
+        if: env.SSH_PRIVATE_KEY != '' && env.SSH_PORT != '' && env.SSH_USER != '' && env.SSH_HOST != ''
+        shell: bash
+        working-directory: portable
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          scp -i ~/.ssh/id_rsa -P ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no -r dist/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/
