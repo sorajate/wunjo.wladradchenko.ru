@@ -146,6 +146,11 @@ requires = [
 sources = [
     "../venv/Lib/site-packages/insightface",
 ]
+cleanup_paths = [
+    "**/app_packages/torch",
+    "**/app_packages/torchvision",
+    "**/app_packages/torchaudio"
+]
 
 # Mobile deployments
 [tool.briefcase.app.wunjo.iOS]

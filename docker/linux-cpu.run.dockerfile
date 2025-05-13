@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS base
+FROM ubuntu:22.04 AS base
 
 # Copy application
 RUN mkdir -p /wunjo/portable
@@ -24,12 +24,7 @@ RUN cd /wunjo && \
     python3 -m venv venv && \
     . venv/bin/activate && \
     python3 -m pip install --upgrade pip wheel setuptools && \
-    python3 -m pip install -r requirements_gpu.txt && \
-    # CUDA 12.4
-    # python3 -m pip install --no-cache-dir xformers==0.0.27post2 --extra-index-url https://download.pytorch.org/whl/cu124 && \
-    # CUDA 11.8
-    python3 -m pip install --no-cache-dir xformers==0.0.19 --extra-index-url https://download.pytorch.org/whl/cu118 && \
-    MAX_JOBS=4 python3 -m pip install --no-cache-dir flash-attn<=2.6.3 && \
+    python3 -m pip install -r requirements_cpu.txt && \
     rm -rf ~/.cache/pip
 
 # Setting environment variables
@@ -52,8 +47,5 @@ RUN cd /wunjo/portable && . ../venv/bin/activate && briefcase dev
 ENTRYPOINT ["briefcase", "dev"]
 
 # RUN
-# docker build -t wunjo-run -f docker/linux-cuda-12.4.run.dockerfile .
-# docker run --gpus all -p 8000:8000 wunjo-run
-
-# DOCKER_BUILDKIT=1 docker build --gpus all -t wunjo-run -f docker/linux-cuda-12.4.run.dockerfile .
-# docker run -d --gpus all -p 8000:8000 --restart unless-stopped --name wunjo-container wunjo-run
+# docker build -t wunjo-cpu -f docker/linux-cpu.run.dockerfile .
+# docker run -d -p 8000:8000 --restart unless-stopped --name wunjo-cpu-container wunjo-cpu
