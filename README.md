@@ -59,10 +59,6 @@ Please note that the commercial product available at [https://wunjo.online](http
 
 This separation ensures clarity for users and compliance with open-source licensing.
 
-## SignPath Open Source Program
-
-This open-source project is part of the [SignPath OSS program](https://signpath.org/projects) and we are grateful for their support in helping us maintain and secure the project. Signed Windows installer SignPath OSS program license coming soon in [releases](https://github.com/wladradchenko/wunjo.wladradchenko.ru/releases).
-
 ## Big update Wunjo CE v2.0.8
 
 ### Smart Crop and Cut for Video!
@@ -282,6 +278,10 @@ You can support the author of the project in the development of his creative ide
   </tr>
 </table>
 </div>
+
+## Sponsors
+
+This open-source project is part of the [SignPath OSS program](https://signpath.org/projects) and we are grateful for their support in helping us maintain and secure the project. Free code singing o Windows provided by SignPath.io, certificate by SignPath Foundation. Signed installer coming soon in [releases](https://github.com/wladradchenko/wunjo.wladradchenko.ru/releases).
 
 ### Supporters and Donors
 
