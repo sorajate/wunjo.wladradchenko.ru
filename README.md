@@ -61,7 +61,7 @@ This separation ensures clarity for users and compliance with open-source licens
 
 ## SignPath Open Source Program
 
-This open-source project is part of the [SignPath OSS program](https://signpath.org/projects) and we are grateful for their support in helping us maintain and secure the project.
+This open-source project is part of the [SignPath OSS program](https://signpath.org/projects) and we are grateful for their support in helping us maintain and secure the project. Signed Windows installer SignPath OSS program license coming soon in [releases](https://github.com/wladradchenko/wunjo.wladradchenko.ru/releases).
 
 ## Big update Wunjo CE v2.0.8
 
