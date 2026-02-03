@@ -48,6 +48,21 @@ Wunjo Pro is now easier and more powerful than ever!
 - 📣 **Spread the word**: Share Wunjo with your friends and invite them to support the project on GitHub!
 - 🎥 **Video Reviews on YouTube**: Leave a video review of Wunjo with an open-source mention on GitHub, share the video link with support@wunjo.online, and I'll give you **free access to the latest version's full functionality for a year**!
 
+## Project vs Commercial Product
+
+This repository contains the open-source project **Wunjo**. 
+
+Please note that the commercial product available at [https://wunjo.online](https://wunjo.online) is a completely separate product:
+- It has a different codebase.
+- It does not use or derive from this open-source repository.
+- It may include commercial features not available in this repository.
+
+This separation ensures clarity for users and compliance with open-source licensing.
+
+## SignPath Open Source Program
+
+This open-source project is part of the [SignPath OSS program](https://signpath.org/projects) and we are grateful for their support in helping us maintain and secure the project.
+
 ## Big update Wunjo CE v2.0.8
 
 ### Smart Crop and Cut for Video!
